@@ -38,13 +38,13 @@ async def close_upstream(
 
 
 def create_client() -> httpx.AsyncClient:
-    state_path = Path(os.getenv("POLYU_STATE_PATH", str(STATE_PATH)))
+    state_path = Path(os.getenv("POLYUGENAI2API_STATE_PATH", str(STATE_PATH)))
     return httpx.AsyncClient(
         base_url=ORIGIN,
         cookies=load_cookies(state_path),
         follow_redirects=False,
         timeout=httpx.Timeout(120, connect=15),
-        headers={"Origin": ORIGIN, "Referer": ORIGIN + "/", "User-Agent": "PolyUGenAI-OpenAI/0.1"},
+        headers={"Origin": ORIGIN, "Referer": ORIGIN + "/", "User-Agent": "polyugenai2api/0.1"},
     )
 
 
@@ -88,9 +88,7 @@ def validate_request(body: object) -> tuple[dict, str, list[str]]:
 def create_app(
     api_key: str | None = None, client_factory: Callable[[], httpx.AsyncClient] = create_client
 ) -> FastAPI:
-    app = FastAPI(
-        title="PolyU GenAI OpenAI adapter", docs_url=None, redoc_url=None, openapi_url=None
-    )
+    app = FastAPI(title="polyugenai2api", docs_url=None, redoc_url=None, openapi_url=None)
 
     @app.exception_handler(APIError)
     async def api_error(_request: Request, exc: APIError):
@@ -110,9 +108,9 @@ def create_app(
     async def authenticate(request: Request, call_next):
         if request.url.path == "/health":
             return await call_next(request)
-        expected = api_key or os.getenv("POLYUGENAI_API_KEY")
+        expected = api_key or os.getenv("POLYUGENAI2API_API_KEY")
         if not expected:
-            error = APIError(503, "Set POLYUGENAI_API_KEY or start with polyugenai serve.")
+            error = APIError(503, "Set POLYUGENAI2API_API_KEY or start with polyugenai2api serve.")
             return JSONResponse(error.payload(), status_code=503)
         supplied = request.headers.get("authorization", "")
         if not secrets.compare_digest(supplied.encode(), ("Bearer " + expected).encode()):

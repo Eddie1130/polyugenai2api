@@ -1,1 +1,0 @@
-"""PolyU GenAI local adapter."""

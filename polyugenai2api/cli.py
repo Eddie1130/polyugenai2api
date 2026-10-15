@@ -42,7 +42,7 @@ async def login(browser: str, state_path: Path) -> None:
             if check.status != 200 or "application/json" not in check.headers.get(
                 "content-type", ""
             ):
-                raise APIError(401, "登入尚未完成，請重新執行 polyugenai login。")
+                raise APIError(401, "登入尚未完成，請重新執行 polyugenai2api login。")
             data = await check.json()
             if not isinstance(data, dict) or not data or data.get("error"):
                 raise APIError(401, "學校未確認登入身分，請重新登入。")
@@ -63,7 +63,7 @@ async def doctor() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="PolyU GenAI → OpenAI 本機轉接器")
+    parser = argparse.ArgumentParser(description="polyugenai2api — PolyU GenAI → OpenAI 本機轉接器")
     sub = parser.add_subparsers(dest="command", required=True)
     auth = sub.add_parser("login", help="開啟瀏覽器登入學校帳戶")
     auth.add_argument("--browser", choices=["chrome", "chromium"], default="chrome")
@@ -71,7 +71,7 @@ def main() -> None:
     serve = sub.add_parser("serve", help="啟動本機 OpenAI API")
     serve.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
-    state_path = Path(os.getenv("POLYU_STATE_PATH", str(STATE_PATH)))
+    state_path = Path(os.getenv("POLYUGENAI2API_STATE_PATH", str(STATE_PATH)))
     try:
         if args.command == "login":
             asyncio.run(login(args.browser, state_path))
@@ -80,7 +80,7 @@ def main() -> None:
         else:
             import uvicorn
 
-            key = os.getenv("POLYUGENAI_API_KEY")
+            key = os.getenv("POLYUGENAI2API_API_KEY")
             if not key:
                 key_path = Path(".auth/api-key")
                 if not key_path.exists():
@@ -88,10 +88,10 @@ def main() -> None:
                 key = key_path.read_text().strip()
                 if not key:
                     raise APIError(503, ".auth/api-key 是空的，請刪除後重新啟動。")
-                os.environ["POLYUGENAI_API_KEY"] = key
+                os.environ["POLYUGENAI2API_API_KEY"] = key
                 print("本機 API key 位於 .auth/api-key；請將其填入客戶端。")
             uvicorn.run(
-                "polyugenai.server:app",
+                "polyugenai2api.server:app",
                 host="127.0.0.1",
                 port=args.port,
                 limit_concurrency=16,

@@ -6,9 +6,15 @@ import httpx
 import pytest
 from openai import AsyncOpenAI
 
-from polyugenai.adapter import APIError, PolyUClient, content_chunks, load_cookies, prepare_messages
-from polyugenai.cli import private_write
-from polyugenai.server import close_upstream, create_app
+from polyugenai2api.adapter import (
+    APIError,
+    PolyUClient,
+    content_chunks,
+    load_cookies,
+    prepare_messages,
+)
+from polyugenai2api.cli import private_write
+from polyugenai2api.server import close_upstream, create_app
 
 KEY = "test-local-key"
 MODEL = {
@@ -210,7 +216,7 @@ def test_multiturn_and_images():
 
 
 def test_storage_state_filters_domains_and_uses_private_permissions(tmp_path, monkeypatch):
-    monkeypatch.delenv("POLYU_COOKIE", raising=False)
+    monkeypatch.delenv("POLYUGENAI2API_COOKIE", raising=False)
     state = tmp_path / "auth" / "state.json"
     private_write(
         state,
@@ -235,8 +241,8 @@ def test_storage_state_filters_domains_and_uses_private_permissions(tmp_path, mo
 
 
 def test_missing_login_is_actionable(tmp_path, monkeypatch):
-    monkeypatch.delenv("POLYU_COOKIE", raising=False)
-    with pytest.raises(APIError, match="polyugenai login"):
+    monkeypatch.delenv("POLYUGENAI2API_COOKIE", raising=False)
+    with pytest.raises(APIError, match="polyugenai2api login"):
         load_cookies(tmp_path / "missing.json")
 
 

@@ -84,7 +84,7 @@ def prepare_messages(messages: object) -> tuple[str, list[str]]:
 
 def load_cookies(state_path: Path) -> httpx.Cookies:
     cookies = httpx.Cookies()
-    raw_cookie = os.getenv("POLYU_COOKIE")
+    raw_cookie = os.getenv("POLYUGENAI2API_COOKIE")
     if raw_cookie:
         for part in raw_cookie.split(";"):
             name, sep, value = part.strip().partition("=")
@@ -104,10 +104,12 @@ def load_cookies(state_path: Path) -> httpx.Cookies:
                     )
         except (OSError, ValueError, KeyError, TypeError) as exc:
             raise APIError(
-                503, "Invalid login state. Run polyugenai login again.", "login_required"
+                503, "Invalid login state. Run polyugenai2api login again.", "login_required"
             ) from exc
     if not cookies:
-        raise APIError(503, "Run polyugenai login or set POLYU_COOKIE.", "login_required")
+        raise APIError(
+            503, "Run polyugenai2api login or set POLYUGENAI2API_COOKIE.", "login_required"
+        )
     return cookies
 
 
@@ -120,7 +122,7 @@ class PolyUClient:
         if response.status_code in (401, 403) or response.is_redirect:
             raise APIError(
                 401,
-                "School session expired or access denied. Run polyugenai login.",
+                "School session expired or access denied. Run polyugenai2api login.",
                 "upstream_authentication_error",
             )
         if response.status_code == 429:

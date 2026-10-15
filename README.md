@@ -1,4 +1,4 @@
-# PolyU GenAI → OpenAI API
+# polyugenai2api
 
 將自己的 [PolyU GenAI](https://genai.polyu.edu.hk/) 登入工作階段，轉成可供 OpenAI SDK、支援自訂 OpenAI URL 的聊天客戶端使用的本機 API。
 
@@ -7,18 +7,18 @@
 需要 Python 3.11+ 及 Google Chrome。
 
 ```bash
-cd /Users/eddie/Desktop/polyugenai
+cd /Users/eddie/Desktop/polyugenai2api
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e '.[login]'
-polyugenai login
-polyugenai doctor
-polyugenai serve
+polyugenai2api login
+polyugenai2api doctor
+polyugenai2api serve
 ```
 
 `login` 會開啟獨立 Chrome 視窗。完成學校 SSO／MFA、進入聊天頁後，回到終端按 Enter。登入 Cookie 儲存在 `.auth/storage-state.json`，權限為 `600`。不需要 OpenAI 平台 API key。
 
-沒有 Chrome 時，可執行 `playwright install chromium`，再用 `polyugenai login --browser chromium`。
+沒有 Chrome 時，可執行 `playwright install chromium`，再用 `polyugenai2api login --browser chromium`。
 
 客戶端設定：
 
@@ -59,7 +59,7 @@ print(answer.choices[0].message.content)
 
 ## 支援範圍
 
-- `GET /health`：僅檢查本機服務；`polyugenai doctor` 才會檢查學校登入與模型。
+- `GET /health`：僅檢查本機服務；`polyugenai2api doctor` 才會檢查學校登入與模型。
 - `GET /v1/models`：即時讀取學校 `/api/llm/list`，只列出帳戶獲授權且支援串流的模型。
 - `POST /v1/chat/completions`：一般 JSON 或 SSE 串流；串流成功以 `[DONE]` 結束。
 - `system`、`developer`、`user`、`assistant` 文字訊息。多輪歷史序列化為單一文字提示，角色優先序與原生 OpenAI API 不完全相同；最後一則須為 `user`。
@@ -75,13 +75,13 @@ print(answer.choices[0].message.content)
 
 | 環境變數 | 用途 |
 |---|---|
-| `POLYU_STATE_PATH` | 登入狀態檔路徑，預設 `.auth/storage-state.json` |
-| `POLYU_COOKIE` | 可選：手動提供自己的完整 Cookie 標頭，優先於登入狀態檔 |
-| `POLYUGENAI_API_KEY` | 可選：自行設定本機轉接器金鑰，優先於 `.auth/api-key` |
+| `POLYUGENAI2API_STATE_PATH` | 登入狀態檔路徑，預設 `.auth/storage-state.json` |
+| `POLYUGENAI2API_COOKIE` | 可選：手動提供自己的完整 Cookie 標頭，優先於登入狀態檔 |
+| `POLYUGENAI2API_API_KEY` | 可選：自行設定本機轉接器金鑰，優先於 `.auth/api-key` |
 
-`polyugenai serve --port 8001` 可修改埠號。服務只綁定 `127.0.0.1`，需要本機 Bearer key；不啟用 CORS。直接以 Uvicorn 啟動時，必須設定 `POLYUGENAI_API_KEY`。
+`polyugenai2api serve --port 8001` 可修改埠號。服務只綁定 `127.0.0.1`，需要本機 Bearer key；不啟用 CORS。直接以 Uvicorn 啟動時，必須設定 `POLYUGENAI2API_API_KEY`。
 
-學校登入失效會回傳 401，重新執行 `polyugenai login` 即可；服務每次請求重新載入 Cookie，毋須重啟。Cookie 模式只適用於以 Cookie 驗證的工作階段，尚未確認是否另有裝置綁定或額外驗證要求。不要分享 `.auth/`、Cookie 或 HAR；均已加入 `.gitignore`。
+學校登入失效會回傳 401，重新執行 `polyugenai2api login` 即可；服務每次請求重新載入 Cookie，毋須重啟。Cookie 模式只適用於以 Cookie 驗證的工作階段，尚未確認是否另有裝置綁定或額外驗證要求。不要分享 `.auth/`、Cookie 或 HAR；均已加入 `.gitignore`。
 
 ## 分析依據與驗證
 
@@ -106,6 +106,6 @@ OpenAI 輸出格式對照 [官方 Chat Completions API 文件](https://developer
 ```bash
 pip install -e '.[dev]'
 pytest
-ruff check polyugenai tests
-ruff format --check polyugenai tests
+ruff check polyugenai2api tests
+ruff format --check polyugenai2api tests
 ```

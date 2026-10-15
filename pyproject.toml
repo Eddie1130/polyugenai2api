@@ -3,7 +3,7 @@ requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "polyugenai-openai"
+name = "polyugenai2api"
 version = "0.1.0"
 description = "Local OpenAI Chat Completions adapter for PolyU GenAI"
 requires-python = ">=3.11"
@@ -14,10 +14,10 @@ login = ["playwright>=1.50,<2"]
 dev = ["pytest>=8,<10", "pytest-asyncio>=0.25,<2", "ruff>=0.11,<1", "openai>=1.60,<3"]
 
 [project.scripts]
-polyugenai = "polyugenai.cli:main"
+polyugenai2api = "polyugenai2api.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["polyugenai*"]
+include = ["polyugenai2api*"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
